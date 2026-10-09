@@ -107,6 +107,17 @@ ones). Besides `install`: `rollback`, `linktest` and `migrate`.
   engine as it was before the last install.
 - Two installs into one root never run at the same time (`<root>/.engine.lock`).
 
+## Plots
+
+`xmgr.c` draws each fit's plot by running a Grace-compatible program on
+the fit's curves, data and Grace parameter file (`fitN.agr-par`). It uses
+[plot-go](https://github.com/fitteia/OneFit-Engine-plot) when it is on the
+PATH and the device is one plot-go writes (EPS - what OneFit asks for -
+PostScript, PDF, SVG): plot-go draws Grace projects without Grace and takes
+gracebat's command line. Otherwise it runs Grace (`grace`, `gracebat` on
+macOS), as before. `OFE_PLOTTER=grace` forces Grace, `OFE_PLOTTER=plot-go`
+plot-go. `gfitn` falls back to gnuplot when neither is installed.
+
 ## Version
 
 `LIBNUMBER` in [`libnumber.mk`](libnumber.mk) is the core's version, defined only there. The

@@ -223,8 +223,9 @@ int main(int argc, char **argv,char **env)
 //	int err;
 //	err = system("grace -version >/dev/null 2>&1");
 
-	if (system("grace -version >/dev/null 2>&1") != 0 && system("xmgrace -version >/dev/null 2>&1") != 0) {
-    	perror("===> xmgrace not available. Continue with gnuplot...");
+	/* plot-go (OneFit-Engine-plot) draws the plots in Grace's place */
+	if (system("plot-go -version >/dev/null 2>&1") != 0 && system("grace -version >/dev/null 2>&1") != 0 && system("xmgrace -version >/dev/null 2>&1") != 0) {
+    	perror("===> neither plot-go nor xmgrace available. Continue with gnuplot...");
     	xmgrace_flag = 0;
 		grbatch_flag = 0;
 	} 
