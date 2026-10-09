@@ -116,7 +116,11 @@ PATH and the device is one plot-go writes (EPS - what OneFit asks for -
 PostScript, PDF, SVG): plot-go draws Grace projects without Grace and takes
 gracebat's command line. Otherwise it runs Grace (`grace`, `gracebat` on
 macOS), as before. `OFE_PLOTTER=grace` forces Grace, `OFE_PLOTTER=plot-go`
-plot-go. `gfitn` falls back to gnuplot when neither is installed.
+plot-go for plots with a parameter file. Parameterless data need Grace's
+autoscaling and defaults, so they stay on Grace. Forcing plot-go without a
+parameter file reports an error instead. Plotting and conversion failures
+return a nonzero status rather than being reported as successful
+fits. `gfitn` falls back to gnuplot when neither is installed.
 
 ## Version
 
