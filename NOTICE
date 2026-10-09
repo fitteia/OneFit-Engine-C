@@ -1,4 +1,4 @@
-onefite-c-code
+OneFit-Engine-C
 
 This repository is an extraction of the C and Fortran engine sources from
 OneFit-Engine. Original OneFit code is covered by the Artistic License 2.0;
@@ -7,17 +7,19 @@ https://github.com/fitteia/OneFit-Engine
 
 Third-party and separately licensed material
 
-1. NAG-derived Fortran routines (moved out of this repository)
+1. Florence model (moved out of this repository; NAG code replaced)
 
-local/Florence_c.c/.h and local/Florence_f.f (the latter carrying NAG
-copyright notices and historical NAG Library release markers, including
-F01BCF, F02AXF, F02AYF, P01ABF, and P01ABZ) were removed from this
-repository entirely and relocated to a separately-licensed external
-extensions bundle (see .gitignore's own /extensions/ entry) - this base
-repository no longer contains any NAG-derived source. Anyone building
-against the base repository alone has none of that licensing exposure;
-the external extensions bundle carries its own license/notice for
-whatever it contains.
+local/Florence_c.c/.h and local/Florence_f.f were removed from this
+repository and moved to a separate extensions bundle, so this base
+repository contains no Florence and no NAG-derived source. The Florence
+Fortran once carried NAG Library routines (F01BCF, F02AXF, F02AYF, P01ABF,
+P01ABZ); they have been replaced with an independent implementation. The
+result is published under the Artistic License 2.0, with the written
+permission of the original authors (G. Parigi and A. Kubrak, 2026-10-08),
+at https://github.com/fitteia/OneFit-Engine-ext-florence - see its LICENSE
+and NOTICE for the required attribution and citations. The original
+NAG-derived version is kept in a separate private repository, only for
+holders of a NAG Library license.
 
 2. Numerical Recipes routines (replaced)
 
@@ -33,9 +35,11 @@ Numerical Recipes code.
 The fitting engine links separately with the Minuit static library. Minuit is
 maintained in the sibling repository:
 https://github.com/fitteia/OneFit-Engine-minuit
-That repository is GPLv2-licensed; see its COPYING file. Minuit is not
-relicensed by this repository. Any distribution that links or bundles Minuit
-must comply with GPLv2 and provide the corresponding source and notices.
+That repository is licensed under the GNU GPL version 2, as stated by the
+fork (its sources name no version of their own); see its COPYING file.
+Minuit is not relicensed by this repository. Any distribution that links or
+bundles Minuit must comply with GPLv2 and provide the corresponding source
+and notices.
 
 4. epstopdf
 
