@@ -64,25 +64,28 @@ int main(int argc,char **argv) {
             self.assertIn('-printfile fit-curves-1.eps -saveall fit-curves-1.agr',t)
             self.assertNotIn('epstopdf fit-curves-1.eps -saveall',t)
 
+    # a failed plot is a warning, not a failed fit: the results are written
     def test_failed_plotter_skips_conversion_and_display(self):
         p,t=self.run_case(('param','display'),FAIL_PLOTTER='7')
-        self.assertNotEqual(p.returncode,0); self.assertIn('plot command failed',p.stderr)
+        self.assertEqual(p.returncode,0,p.stderr); self.assertIn('plot command failed',p.stderr)
+        self.assertIn("this block's plot is missing",p.stderr)
         self.assertNotIn('epstopdf',t); self.assertNotIn('display ',t)
 
-    def test_forced_parameterless_plotgo_reports_unsupported_mode(self):
+    def test_forced_parameterless_plotgo_warns_and_uses_grace(self):
         p,t=self.run_case(('no-param',),OFE_PLOTTER='plot-go')
-        self.assertNotEqual(p.returncode,0)
+        self.assertEqual(p.returncode,0,p.stderr)
         self.assertIn('requires a parameter file',p.stderr)
-        self.assertNotIn('grace ',t)
+        self.assertIn('grace -nxy fit-curves-1',t); self.assertNotIn('plot-go -',t)
 
     def test_failed_conversion_skips_display(self):
         p,t=self.run_case(('param','display'),FAIL_CONVERTER='9')
-        self.assertNotEqual(p.returncode,0); self.assertNotIn('display ',t)
+        self.assertEqual(p.returncode,0,p.stderr); self.assertIn('plot command failed',p.stderr)
+        self.assertNotIn('display ',t)
 
-    def test_failed_data_preparation_stops_plot(self):
+    def test_failed_data_preparation_skips_the_plot(self):
         p,t=self.run_case(FAIL_DATA='4')
-        self.assertNotEqual(p.returncode,0); self.assertIn('preparation failed',p.stderr)
-        self.assertNotIn('plot-go',t)
+        self.assertEqual(p.returncode,0,p.stderr); self.assertIn('preparation failed',p.stderr)
+        self.assertNotIn('plot-go -',t)
 
 if __name__ == '__main__':
     unittest.main()

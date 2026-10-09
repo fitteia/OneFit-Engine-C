@@ -27,7 +27,7 @@ static const char *grace_prog(const char *device, const char *parameters)
      bare data as Grace does. Keep parameterless plots on Grace. */
   if (parameters == NULL || !strcmp(parameters, "NULL")) {
     if (want != NULL && !strcmp(want, "plot-go"))
-      nrerror("plot-go requires a parameter file; use Grace for automatic axes");
+      fprintf(stderr, "OneFit warning: plot-go requires a parameter file (it does not autoscale); drawing with Grace\n");
     return grace;
   }
   if (want != NULL && !strcmp(want, "grace")) return grace;
@@ -117,7 +117,7 @@ void xmgr(char prog[], char format[])
 /*      strcat(lixo1,"_");        */
       sprintf(ins,"cop -b2 %d %s %s %s",Ma+2,Files_gph,lixo1,lixo);
       err = system(ins);
-      if (err != 0) { fprintf(stderr, "plot data preparation failed (status %d): %s\n", err, ins); nrerror("plotting failed"); return; }
+      if (err != 0) { fprintf(stderr, "OneFit warning: plot data preparation failed (status %d): %s\nThe fit's results are written; this block's plot is missing.\n", err, ins); continue; }
       strcpy(curv_teo,lixo1);
     }
     else if(!strcmp(typey,"logabs")){
@@ -128,7 +128,7 @@ void xmgr(char prog[], char format[])
       }
       sprintf(ins,"cop -b2 %d %s %s_ %s",Ma+2,Files_gph,Files_gph,gph);
       err = system(ins);
-      if (err != 0) { fprintf(stderr, "plot data preparation failed (status %d): %s\n", err, ins); nrerror("plotting failed"); return; }
+      if (err != 0) { fprintf(stderr, "OneFit warning: plot data preparation failed (status %d): %s\nThe fit's results are written; this block's plot is missing.\n", err, ins); continue; }
       
       strcpy(curv_teo,Files_gph);
 
@@ -153,12 +153,12 @@ void xmgr(char prog[], char format[])
       sprintf(ins,"cop 3 %s . %s | cop 3 . %s c1 c2 c3xc2\n",dlixo1,dlixo,gnu);
       /*printf("cop 3 %s . %s | cop 3 . %s c1 c2 c3xc2\n",dlixo1,dlixo,gnu);*/
       err = system(ins);
-      if (err != 0) { fprintf(stderr, "plot data preparation failed (status %d): %s\n", err, ins); nrerror("plotting failed"); return; }
+      if (err != 0) { fprintf(stderr, "OneFit warning: plot data preparation failed (status %d): %s\nThe fit's results are written; this block's plot is missing.\n", err, ins); continue; }
     }
     else {
       sprintf(ins,"cop 3 %s %s %s\n",dlixo1,gnu,dlixo);
       err = system(ins);
-      if (err != 0) { fprintf(stderr, "plot data preparation failed (status %d): %s\n", err, ins); nrerror("plotting failed"); return; }
+      if (err != 0) { fprintf(stderr, "OneFit warning: plot data preparation failed (status %d): %s\nThe fit's results are written; this block's plot is missing.\n", err, ins); continue; }
     }
     if(!strcmp(prog,"xmgr") && !strcmp(format,"")){
       	if(!strcmp(xmgr_par_file,"NULL")){
@@ -250,10 +250,10 @@ void xmgr(char prog[], char format[])
 #endif  
     printf("%s\n",xmgr_cmd);
     err = system(xmgr_cmd);
-    if (err != 0) {
-      fprintf(stderr, "plot command failed (status %d): %s\n", err, xmgr_cmd);
-      nrerror("plotting failed"); return;
-    }
+    /* a failed plot is reported, not fatal: the fit's results are already
+       written, and the other blocks still get their plots */
+    if (err != 0)
+      fprintf(stderr, "OneFit warning: plot command failed (status %d): %s\nThe fit's results are written; this block's plot is missing.\n", err, xmgr_cmd);
 
   }
   return;

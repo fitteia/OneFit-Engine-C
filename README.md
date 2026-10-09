@@ -117,10 +117,12 @@ PostScript, PDF, SVG): plot-go draws Grace projects without Grace and takes
 gracebat's command line. Otherwise it runs Grace (`grace`, `gracebat` on
 macOS), as before. `OFE_PLOTTER=grace` forces Grace, `OFE_PLOTTER=plot-go`
 plot-go for plots with a parameter file. Parameterless data need Grace's
-autoscaling and defaults, so they stay on Grace. Forcing plot-go without a
-parameter file reports an error instead. Plotting and conversion failures
-return a nonzero status rather than being reported as successful
-fits. `gfitn` falls back to gnuplot when neither is installed.
+autoscaling and defaults, so they stay on Grace (forcing plot-go there
+warns and uses Grace). A failed plot - data preparation, plotter or
+conversion - is a warning on stderr, not a failed fit: the fit's results
+are already written, that block's plot is missing, and the other blocks
+are still plotted. `gfitn` falls back to gnuplot when neither is
+installed.
 
 ## Version
 
