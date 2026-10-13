@@ -54,6 +54,6 @@ engine-selftest:
 	perl tools/test_engine.t
 
 plot-selftest:
-	python3 tools/test_plotting.py
+	perl tools/test_plotting.t
 
 test: extensions-selftest api-selftest engine-selftest plot-selftest api-check
