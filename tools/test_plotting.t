@@ -52,7 +52,14 @@ sub run_case {
             . qq{exit "\${$fails{$tool}:-0}"\n});
         chmod 0755, "$d/bin/$tool";
     }
-    spew("$d/fit-curves-1", "1 2\n");
+    # sed as macOS has it: it edits only regular files in place
+    spew("$d/bin/sed", "#!/bin/sh\ncase \" \$* \" in *\" -i\"*) for f; do :; done; [ -L \"\$f\" ] && { echo \"sed: \$f: in-place editing only works for regular files\" >&2; exit 1; };; esac\nexec /usr/bin/sed \"\$@\"\n");
+    chmod 0755, "$d/bin/sed";
+    if (delete $changes{LINKED}) { # a per-block folder's link to the fit folder's file
+        spew("$d/fit/fit-curves-1", "1 2\n");
+        symlink("$d/fit/fit-curves-1", "$d/fit-curves-1") or die $!;
+    }
+    else { spew("$d/fit-curves-1", "1 2\n") }
     local %ENV = (%ENV, PATH => "$d/bin:/usr/bin:/bin", TRACE => "$d/trace", OFE_PLOTTER => '', %changes);
     my $cmd = join ' ', 'cd', quotemeta($d), '&&', 'timeout', '5', quotemeta($binary),
         (map { quotemeta } @$args), '>out', '2>err';
@@ -109,6 +116,14 @@ subtest 'a failed data preparation skips the plot' => sub {
     is $status, 0 or diag $err;
     like $err, qr/preparation failed/;
     unlike $trace, qr/plot-go -/;
+};
+
+subtest 'a curve file that is a link (a per-block folder) is plotted' => sub {
+    my ($status, $err, $trace) = run_case(['param'], LINKED => 1);
+    is $status, 0 or diag $err;
+    unlike $err, qr/plot command failed/;
+    like $trace, qr/plot-go -settype xydy gnu0\.da_ -nxy fit-curves-1 -param/;
+    like $trace, qr/epstopdf fit-curves-1\.eps/;
 };
 
 done_testing;

@@ -238,8 +238,10 @@ void xmgr(char prog[], char format[])
       	}
       	else if(strcmp(xmgr_par_file,"NULL") && !strcmp(GRAPH_TYPE,"PDF")){
 	//	printf(":::::::::: 4 ::::::::::::: %s %s\n\n",xmgr_par_file,GRAPH_TYPE);
-			if(display_flag) sprintf(xmgr_cmd,"sed -E -i.bak '/inf\\|nan/d' %s && %s  -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo,curv_teo);
-			else sprintf(xmgr_cmd,"sed -E -i.bak '/inf\\|nan/d' %s && %s -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps",curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo);
+	//	not sed -i: in a per-block folder %s is a link to the fit folder's file, and macOS sed
+	//	edits only regular files in place (GNU sed replaces the link)
+			if(display_flag) sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s  -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",curv_teo,curv_teo,curv_teo,curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo,curv_teo);
+			else sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps",curv_teo,curv_teo,curv_teo,curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo);
       	}
       	else {
 	//	printf(":::::::::: 5 :::::::::::::\n\n");
