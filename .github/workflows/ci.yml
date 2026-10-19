@@ -33,7 +33,7 @@ jobs:
           apt-get install -y -qq --no-install-recommends git ca-certificates \
             gcc gfortran make perl libperl-dev swig
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Build and install the core
         run: make ARCH="$(uname -m)" OS=LINUX ROOT="$RUNNER_TEMP/root" install
