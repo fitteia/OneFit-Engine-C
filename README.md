@@ -13,10 +13,10 @@ predates the split and traces the real history of these files, not a fresh impor
 
 - **`core/onefit-3.1/`** - the main engine: MINUIT driver (`gfitn.c`), data/parameter I/O, the
   results/plotting pipeline (`gfit_out.c`, `xmgr.c`), and the per-fit build recipe's own source
-  templates (`tabfunc.c`). Builds `libonefit-5.1.0.a` and `libonefit-util-5.1.0.a`
+  templates (`tabfunc.c`). Builds `libonefit-6.0.0.a` and `libonefit-util-6.0.0.a`
   (the number is `LIBNUMBER`, see [Version](#version)).
   - **`core/onefit-3.1/modelos/`** - a library of built-in model functions. Builds
-    `libonefit-modelos-5.1.0.a`. Depends on `core/onefit-3.1`'s own headers via a relative
+    `libonefit-modelos-6.0.0.a`. Depends on `core/onefit-3.1`'s own headers via a relative
     `-I..` - it must stay a structural sibling of `core/onefit-3.1`, wherever this repo itself
     ends up living.
   - **`core/onefit-3.1/perl/`** - small installed helper scripts: `pcop`, `pdf2mp4` (PDF-to-MP4,
@@ -43,7 +43,7 @@ static libraries themselves.
 
 **Dependencies to build**: `gcc`, `gfortran`, `make`, `ar` (binutils). Nothing else - no Perl,
 no Raku, no SWIG - are required to produce the four static libraries
-(`libonefit-5.1.0.a`, `libonefit-modelos-5.1.0.a`, `libonefit-util-5.1.0.a`, `libuserlib.a`) and
+(`libonefit-6.0.0.a`, `libonefit-modelos-6.0.0.a`, `libonefit-util-6.0.0.a`, `libuserlib.a`) and
 their headers. `PERLCORE`/`swig` only matter for the separate `AuxCode.so` module build, which
 `onefite-native` never uses at all, and which real `onefite` itself only builds as a (currently
 unused - nothing in `OneFit-Engine` loads it) side effect of the `gfitn` per-fit compile.
@@ -167,6 +167,11 @@ count as written for 5.x, since nothing they use changed. Releases before this c
 many significant digits as fit, the same formatter as onefite-go's and OneFit-Engine's `fit.par`
 writers. `mixed.h` writes each block's `fitN.par` with it (it wrote `%-10.3e`, 4 digits), and so
 does `actpar`.
+
+6.0.0 changed the Florence prototypes `local/userlib.h` declares: `Florence`, `Florence4`,
+`FlorenceN` and `FlorenceN4LS` take `TAUDELTA` between `TAUMM` and `DPARAM`, passed to the
+Fortran's `PINP(9)` (it was fixed at 2). Only the Florence extensions (0.2.0, `requires_base`
+`">=6.0.0"`) use them; other extensions only need their `requires_base` raised to `">=6.0.0"`.
 
 ## Vendored files
 

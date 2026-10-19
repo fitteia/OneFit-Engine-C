@@ -34,7 +34,7 @@ sub tree {
     if ($o{legacy}) {
         spew("$d/core/onefit-3.1/makefile", "LIBNUMBER=" . ($o{libnumber} // '4.0.4') . "\n");
     } else {
-        spew("$d/libnumber.mk", "LIBNUMBER=" . ($o{libnumber} // '5.0.0') . "\n");
+        spew("$d/libnumber.mk", "LIBNUMBER=" . ($o{libnumber} // '6.0.0') . "\n");
     }
     spew("$d/META-C.json", $o{base_text} // '{"BPP": {"function": "BPP(f,a,tau)"}}');
     return $d;
@@ -100,7 +100,7 @@ sub install { my ($c, $root, @extra) = @_; return run('install', '--c-root', $c,
     }
 }
 {
-    my $c = tree();
+    my $c = tree(libnumber => '5.0.0');
     my $d = add_template($c, 'example', requires_base => '>=5.1');
     my ($rc, $out) = run('validate', $d, '--c-root', $c);
     is($rc, 1, 'requires_base not met: rejected');

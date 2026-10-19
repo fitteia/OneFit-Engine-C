@@ -1,6 +1,6 @@
 # onefite-c-code core API: what the installed headers declare.
 # Written by `make api-accept`, checked by `make api-check` (tools/api.pl).
-# LIBNUMBER 5.1.0
+# LIBNUMBER 6.0.0
 core/onefit-3.1/fitutil.h: FILE*openf(char fname[],char mode[]);
 core/onefit-3.1/fitutil.h: char**buffer_lines(FILE*file,int nlines,int*nchar_line);
 core/onefit-3.1/fitutil.h: char**getsstring(char*str,int*n);
@@ -550,10 +550,10 @@ local/userlib.h: double ECD_poli(double f,double Aecd,double fcm,double fcM,doub
 local/userlib.h: double ECDpoli(double f,double Aecd,double fcm,double fcM,double R,double n);
 local/userlib.h: double EllipticE(double x,double K,double NP);
 local/userlib.h: double EllipticF(double x,double K,double NP);
-local/userlib.h: double Florence(double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
-local/userlib.h: double Florence4(double index,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
-local/userlib.h: double FlorenceN(double index,double n,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
-local/userlib.h: double FlorenceN4LS(double index,double n,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
+local/userlib.h: double Florence(double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double TAUDELTA,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
+local/userlib.h: double Florence4(double index,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double TAUDELTA,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
+local/userlib.h: double FlorenceN(double index,double n,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double TAUDELTA,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
+local/userlib.h: double FlorenceN4LS(double index,double n,double FREQ,double SI,double GAMMAI,double SPIN,double IREL,double DELTA2,double TAURM,double TAUVM,double TAUMM,double TAUDELTA,double DPARAM,double EPARAM,double S4M,double GXM,double GYM,double GZM,double AXM,double AYM,double AZM,double DM,double DDM,double CONCM,double ACQ,double AMOLFRAM,double RKM,double ACONTM,double THETAM,double PHIM,double FLAG);
 local/userlib.h: double GAULOR(double f,double a,double b,double f0,double t);
 local/userlib.h: double GAUSS(double f,double a,double b,double f0,double Df);
 local/userlib.h: double GAUSS1(double f,double a,double b,double f0);

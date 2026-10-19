@@ -4,4 +4,4 @@
 # and is installed as $(ROOT)/etc/engine.mk so the per-fit makefiles of
 # onefite-go and OneFit-Engine link the right names. Change it only when
 # the core's API for extensions changes - see README.md, "Version".
-LIBNUMBER=5.1.0
+LIBNUMBER=6.0.0
