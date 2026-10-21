@@ -124,6 +124,20 @@ are already written, that block's plot is missing, and the other blocks
 are still plotted. `gfitn` falls back to gnuplot when neither is
 installed.
 
+## Branches
+
+Two long-lived branches, as in every OneFit-Engine repository:
+
+- `main` - the current stable release; it moves only when a release is
+  promoted.
+- `unstable` - where every change lands first (feature branches merge
+  here); it changes often and may break.
+
+Pre-releases and release candidates are tags on `unstable`
+(`v0.4.0-pre2`, `v0.4.0-rc1`). When the maintainer accepts one,
+`unstable` is fast-forwarded into `main` (no merge commits) and the final
+version is tagged there. CI runs on both branches.
+
 ## Version
 
 `LIBNUMBER` in [`libnumber.mk`](libnumber.mk) is the core's version, defined only there. The
