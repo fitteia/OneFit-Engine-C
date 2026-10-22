@@ -47,7 +47,7 @@ sub run_case {
                  cop => 'FAIL_DATA', display => 'UNUSED');
     for my $tool (sort keys %fails) {
         spew("$d/bin/$tool", "#!/bin/sh\n"
-            . ($tool eq 'plot-go' ? "[ \"\$1\" = -version ] && exit 0\n" : '')
+            . ($tool eq 'plot-go' ? "[ \"\$1\" = -version ] && { [ -n \"\$PLOTGO_VERSION\" ] && echo \"plot-go \$PLOTGO_VERSION: draws Grace projects\"; exit 0; }\n" : '')
             . qq{printf "%s\\n" "$tool \$*" >> "\$TRACE"\n}
             . qq{exit "\${$fails{$tool}:-0}"\n});
         chmod 0755, "$d/bin/$tool";
@@ -76,6 +76,29 @@ subtest 'plot-go normally, Grace when OFE_PLOTTER asks for it' => sub {
     like $trace, qr/grace -settype xydy/;
 };
 
+subtest 'a plot without a parameter file: plot-go when it scales bare data' => sub {
+    for my $version ('1.2.0-pre3', '1.2.0', '1.2.0-rc1', '1.2.1', '1.3.0', '2.0.0', 'dev') {
+        for my $args (['no-param'], ['no-param', 'display']) {
+            my ($status, $err, $trace) = run_case($args, PLOTGO_VERSION => $version);
+            is $status, 0, "$version @$args" or diag $err;
+            like $trace, qr/^plot-go -nxy fit-curves-1 -settype xydy gnu0\.da_ -hdevice EPS -hardcopy -printfile fit-curves-1\.eps -saveall fit-curves-1\.agr/m, $version;
+            like $trace, qr/^epstopdf fit-curves-1\.eps$/m;
+            unlike $trace, qr/^grace /m;
+        }
+    }
+    my ($status, $err, $trace) = run_case(['no-param'], PLOTGO_VERSION => '1.2.0-pre3', OFE_PLOTTER => 'grace');
+    like $trace, qr/^grace -nxy fit-curves-1/m, 'OFE_PLOTTER=grace still forces Grace';
+};
+
+subtest 'a plot without a parameter file uses Grace with an older plot-go' => sub {
+    for my $version ('', '1.2.0-pre2', '1.2.0-pre1', '1.1.1', '0.2.46') {
+        my ($status, $err, $trace) = run_case(['no-param'], PLOTGO_VERSION => $version);
+        is $status, 0, "'$version'" or diag $err;
+        like $trace, qr/^grace -nxy fit-curves-1/m, "'$version'";
+        unlike $trace, qr/^plot-go -/m;
+    }
+};
+
 subtest 'a plot without a parameter file uses Grace defaults' => sub {
     for my $args (['no-param'], ['no-param', 'display']) {
         my ($status, $err, $trace) = run_case($args);
@@ -96,10 +119,10 @@ subtest 'a failed plotter skips the conversion and the display' => sub {
     unlike $trace, qr/display /;
 };
 
-subtest 'plot-go forced without a parameter file warns and uses Grace' => sub {
+subtest 'an older plot-go forced without a parameter file warns and uses Grace' => sub {
     my ($status, $err, $trace) = run_case(['no-param'], OFE_PLOTTER => 'plot-go');
     is $status, 0 or diag $err;
-    like $err, qr/requires a parameter file/;
+    like $err, qr/needs plot-go v1\.2\.0-pre3 or later/;
     like $trace, qr/grace -nxy fit-curves-1/;
     unlike $trace, qr/plot-go -/;
 };

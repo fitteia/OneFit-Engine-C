@@ -116,9 +116,10 @@ PATH and the device is one plot-go writes (EPS - what OneFit asks for -
 PostScript, PDF, SVG): plot-go draws Grace projects without Grace and takes
 gracebat's command line. Otherwise it runs Grace (`grace`, `gracebat` on
 macOS), as before. `OFE_PLOTTER=grace` forces Grace, `OFE_PLOTTER=plot-go`
-plot-go for plots with a parameter file. Parameterless data need Grace's
-autoscaling and defaults, so they stay on Grace (forcing plot-go there
-warns and uses Grace). A failed plot - data preparation, plotter or
+plot-go. A plot without a parameter file goes to plot-go too when it is
+v1.2.0-pre3 or later, which scales bare data itself (OneFit's `--autox`
+rule, in OneFit's style); with an older plot-go it stays on Grace (forcing
+plot-go there warns and uses Grace). A failed plot - data preparation, plotter or
 conversion - is a warning on stderr, not a failed fit: the fit's results
 are already written, that block's plot is missing, and the other blocks
 are still plotted. `gfitn` falls back to gnuplot when neither is

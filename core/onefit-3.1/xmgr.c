@@ -8,11 +8,33 @@
 #include "xmgr.h"
 #include <strings.h>
 
+/* Whether the plot-go on the PATH scales bare data itself - a plot
+   without a parameter file - as Grace does: from v1.2.0-pre3 on. A build
+   without a release version ("dev") is taken to be current. */
+static int plotgo_autoscales(void)
+{
+  char line[256] = "";
+  int major = 0, minor = 0, patch = 0, pre = 0, n = 0;
+  FILE *p = popen("plot-go -version 2>/dev/null", "r");
+
+  if (p == NULL) return 0;
+  if (fgets(line, sizeof line, p) == NULL) line[0] = 0;
+  pclose(p);
+  if (!strncmp(line, "plot-go dev", 11)) return 1;
+  if (sscanf(line, "plot-go %d.%d.%d%n", &major, &minor, &patch, &n) != 3) return 0;
+  if (major != 1) return major > 1;
+  if (minor != 2) return minor > 2;
+  if (patch > 0) return 1;
+  if (sscanf(line + n, "-pre%d", &pre) == 1) return pre >= 3;
+  return 1;
+}
+
 /* The program for batch plots: plot-go (OneFit-Engine-plot), which draws
    Grace projects without Grace and takes gracebat's command line, when it
    is installed and writes the device asked for (EPS, PostScript, PDF,
-   SVG); Grace otherwise. OFE_PLOTTER=grace forces Grace, OFE_PLOTTER=plot-go
-   plot-go. */
+   SVG); Grace otherwise. A plot without a parameter file needs a plot-go
+   that scales bare data (plotgo_autoscales); an older one leaves it to
+   Grace. OFE_PLOTTER=grace forces Grace, OFE_PLOTTER=plot-go plot-go. */
 static const char *grace_prog(const char *device, const char *parameters)
 {
 #ifdef MacOSX
@@ -20,19 +42,20 @@ static const char *grace_prog(const char *device, const char *parameters)
 #else
   const char *grace = "grace";
 #endif
-  static int plotgo = -1;
+  static int plotgo = -1, autoscales = -1;
   const char *want = getenv("OFE_PLOTTER");
+  int bare = parameters == NULL || !strcmp(parameters, "NULL");
 
-  /* plot-go requires OneFit's world/view settings; it does not autoscale
-     bare data as Grace does. Keep parameterless plots on Grace. */
-  if (parameters == NULL || !strcmp(parameters, "NULL")) {
-    if (want != NULL && !strcmp(want, "plot-go"))
-      fprintf(stderr, "OneFit warning: plot-go requires a parameter file (it does not autoscale); drawing with Grace\n");
-    return grace;
-  }
   if (want != NULL && !strcmp(want, "grace")) return grace;
   if (device != NULL && strcasecmp(device, "EPS") && strcasecmp(device, "PostScript")
       && strcasecmp(device, "PDF") && strcasecmp(device, "SVG")) return grace;
+  if (bare) {
+    if (autoscales < 0) autoscales = plotgo_autoscales();
+    if (autoscales) return "plot-go";
+    if (want != NULL && !strcmp(want, "plot-go"))
+      fprintf(stderr, "OneFit warning: a plot without a parameter file needs plot-go v1.2.0-pre3 or later (it scales bare data); drawing with Grace\n");
+    return grace;
+  }
   if (want != NULL && !strcmp(want, "plot-go")) return "plot-go";
   if (plotgo < 0) plotgo = system("plot-go -version >/dev/null 2>&1") == 0;
   return plotgo ? "plot-go" : grace;
