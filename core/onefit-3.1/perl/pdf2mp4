@@ -25,14 +25,18 @@ trap "rm -rf $WORK" EXIT
 
 frame=1
 
-render_pdf() {
+# render_page PDF N: page N of PDF as the next frame (pdftoppm renders
+# one page with -f/-l, so a multi-page PDF needs no splitting first)
+render_page() {
     pdf="$1"
+    page="$2"
 
     stem=$(printf "%06d" "$frame")
 
     pdftoppm \
         -png \
         -r "$DPI" \
+        -f "$page" -l "$page" \
         -singlefile \
         "$pdf" "$IMG/$stem"
 
@@ -42,25 +46,12 @@ render_pdf() {
 for pdf in "$@"; do
     [ -f "$pdf" ] || { echo "Missing $pdf"; exit 1; }
 
-    pages=$(pdfinfo "$pdf" | awk '/Pages/ {print $2}')
+    pages=$(pdfinfo "$pdf" | awk '/^Pages:/ {print $2}')
 
-    if (( pages > 1 )); then
-        echo "Bursting $pdf ($pages pages)"
-
-        tmpdir="$WORK/burst"
-        mkdir -p "$tmpdir"
-
-        pdftk "$pdf" burst output "$tmpdir/page_%04d.pdf"
-
-        for p in "$tmpdir"/page_*.pdf; do
-            render_pdf "$p"
-        done
-
-        rm -rf "$tmpdir"
-
-    else
-        render_pdf "$pdf"
-    fi
+    (( pages > 1 )) && echo "Rendering $pdf ($pages pages)"
+    for ((page = 1; page <= pages; page++)); do
+        render_page "$pdf" "$page"
+    done
 done
 
 # Choose the best available H.264/MPEG-4 encoder. Captured once into a
