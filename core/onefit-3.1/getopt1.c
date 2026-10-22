@@ -31,7 +31,10 @@ Cambridge, MA 02139, USA.  */
 #endif
 #endif
 
-#ifdef MacOSX
+/* macOS's and musl's (Alpine) C libraries have getopt and getopt_long,
+   as glibc has, but do not define __GNU_LIBRARY__: this copy is then not
+   needed either (and no longer builds with GCC 14 or later). */
+#if (defined MacOSX || defined __linux__) && !defined __GNU_LIBRARY__
 #define __GNU_LIBRARY__ 1
 #endif
 
