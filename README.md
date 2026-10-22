@@ -119,7 +119,11 @@ macOS), as before. `OFE_PLOTTER=grace` forces Grace, `OFE_PLOTTER=plot-go`
 plot-go. A plot without a parameter file goes to plot-go too when it is
 v1.2.0-pre3 or later, which scales bare data itself (OneFit's `--autox`
 rule, in OneFit's style); with an older plot-go it stays on Grace (forcing
-plot-go there warns and uses Grace). A failed plot - data preparation, plotter or
+plot-go there warns and uses Grace). A PDF plot is EPS converted by
+`epstopdf` (Ghostscript), except that plot-go v1.2.0-pre4 or later writes
+the PDF itself, its standard fonts embedded as Ghostscript embeds them -
+no `epstopdf` or Ghostscript - and the EPS as well (OneFit-GUI reads the
+plot's crop from it). A failed plot - data preparation, plotter or
 conversion - is a warning on stderr, not a failed fit: the fit's results
 are already written, that block's plot is missing, and the other blocks
 are still plotted. `gfitn` falls back to gnuplot when neither is

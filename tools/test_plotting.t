@@ -82,12 +82,41 @@ subtest 'a plot without a parameter file: plot-go when it scales bare data' => s
             my ($status, $err, $trace) = run_case($args, PLOTGO_VERSION => $version);
             is $status, 0, "$version @$args" or diag $err;
             like $trace, qr/^plot-go -nxy fit-curves-1 -settype xydy gnu0\.da_ -hdevice EPS -hardcopy -printfile fit-curves-1\.eps -saveall fit-curves-1\.agr/m, $version;
-            like $trace, qr/^epstopdf fit-curves-1\.eps$/m;
+            if ($version eq '1.2.0-pre3') {
+                like $trace, qr/^epstopdf fit-curves-1\.eps$/m;
+            }
+            else {
+                like $trace, qr/^plot-go -nxy fit-curves-1 -settype xydy gnu0\.da_ -hdevice PDF -hardcopy -printfile fit-curves-1\.pdf$/m, "$version: its own PDF";
+                unlike $trace, qr/^epstopdf/m;
+            }
             unlike $trace, qr/^grace /m;
         }
     }
     my ($status, $err, $trace) = run_case(['no-param'], PLOTGO_VERSION => '1.2.0-pre3', OFE_PLOTTER => 'grace');
     like $trace, qr/^grace -nxy fit-curves-1/m, 'OFE_PLOTTER=grace still forces Grace';
+};
+
+subtest 'plot-go writes the PDF itself from v1.2.0-pre4 on, the EPS too' => sub {
+    for my $version ('1.2.0-pre4', '1.2.0', '1.3.0', 'dev') {
+        for my $args (['param'], ['param', 'display'], ['no-param', 'display']) {
+            my ($status, $err, $trace) = run_case($args, PLOTGO_VERSION => $version);
+            is $status, 0, "$version @$args" or diag $err;
+            like $trace, qr/^plot-go .*-hdevice EPS -hardcopy -printfile fit-curves-1\.eps -saveall fit-curves-1\.agr$/m, "$version @$args: EPS";
+            like $trace, qr/^plot-go .*-hdevice PDF -hardcopy -printfile fit-curves-1\.pdf$/m, "$version @$args: PDF";
+            unlike $trace, qr/^epstopdf/m;
+            if (@$args > 1) { like $trace, qr/^display fit-curves-1\.pdf$/m }
+        }
+    }
+    my ($status, $err, $trace) = run_case(['param'], PLOTGO_VERSION => '1.2.0-pre3');
+    like $trace, qr/^epstopdf fit-curves-1\.eps$/m, 'pre3: through epstopdf';
+    unlike $trace, qr/-hdevice PDF/;
+    ($status, $err, $trace) = run_case(['param'], PLOTGO_VERSION => '1.2.0-pre4', OFE_PLOTTER => 'grace');
+    like $trace, qr/^grace .*-hdevice EPS/m, 'Grace: through epstopdf';
+    like $trace, qr/^epstopdf fit-curves-1\.eps$/m;
+    unlike $trace, qr/-hdevice PDF/;
+    ($status, $err, $trace) = run_case(['param', 'display'], PLOTGO_VERSION => '1.2.0-pre4', FAIL_PLOTTER => 3);
+    like $err, qr/plot command failed/, 'a failed plot-go';
+    unlike $trace, qr/display /;
 };
 
 subtest 'a plot without a parameter file uses Grace with an older plot-go' => sub {

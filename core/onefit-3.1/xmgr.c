@@ -8,25 +8,43 @@
 #include "xmgr.h"
 #include <strings.h>
 
-/* Whether the plot-go on the PATH scales bare data itself - a plot
-   without a parameter file - as Grace does: from v1.2.0-pre3 on. A build
-   without a release version ("dev") is taken to be current. */
-static int plotgo_autoscales(void)
+/* How far the plot-go on the PATH is past v1.2.0: N for v1.2.0-preN, 1000
+   for a later or release version or a build without one ("dev"), 0 for an
+   older one or none. Asked once. */
+static int plotgo_level(void)
 {
+  static int level = -1;
   char line[256] = "";
   int major = 0, minor = 0, patch = 0, pre = 0, n = 0;
-  FILE *p = popen("plot-go -version 2>/dev/null", "r");
+  FILE *p;
 
-  if (p == NULL) return 0;
+  if (level >= 0) return level;
+  level = 0;
+  p = popen("plot-go -version 2>/dev/null", "r");
+  if (p == NULL) return level;
   if (fgets(line, sizeof line, p) == NULL) line[0] = 0;
   pclose(p);
-  if (!strncmp(line, "plot-go dev", 11)) return 1;
-  if (sscanf(line, "plot-go %d.%d.%d%n", &major, &minor, &patch, &n) != 3) return 0;
-  if (major != 1) return major > 1;
-  if (minor != 2) return minor > 2;
-  if (patch > 0) return 1;
-  if (sscanf(line + n, "-pre%d", &pre) == 1) return pre >= 3;
-  return 1;
+  if (!strncmp(line, "plot-go dev", 11)) return level = 1000;
+  if (sscanf(line, "plot-go %d.%d.%d%n", &major, &minor, &patch, &n) != 3) return level;
+  if (major != 1) return level = major > 1 ? 1000 : 0;
+  if (minor != 2) return level = minor > 2 ? 1000 : 0;
+  if (patch > 0) return level = 1000;
+  if (sscanf(line + n, "-pre%d", &pre) == 1) return level = pre;
+  return level = 1000;
+}
+
+/* Whether plot-go scales bare data itself - a plot without a parameter
+   file - as Grace does: from v1.2.0-pre3 on. */
+static int plotgo_autoscales(void)
+{
+  return plotgo_level() >= 3;
+}
+
+/* Whether plot-go's own PDF is as epstopdf makes it from the EPS, its
+   standard fonts embedded: from v1.2.0-pre4 on. */
+static int plotgo_writes_pdf(void)
+{
+  return plotgo_level() >= 4;
 }
 
 /* The program for batch plots: plot-go (OneFit-Engine-plot), which draws
@@ -61,6 +79,14 @@ static const char *grace_prog(const char *device, const char *parameters)
   return plotgo ? "plot-go" : grace;
 }
 
+/* Whether a PDF plot is plot-go's own PDF, without epstopdf (and so
+   Ghostscript): when plot-go draws it and embeds the fonts as Ghostscript
+   does. Grace's PDF stays EPS through epstopdf. */
+static int plotgo_pdf(const char *parameters)
+{
+  return !strcmp(grace_prog("EPS", parameters), "plot-go") && plotgo_writes_pdf();
+}
+
 void xmgr(char prog[], char format[])
      // char prog[],format[];
 {
@@ -72,6 +98,7 @@ void xmgr(char prog[], char format[])
   char xmgr_par_file[256];
   char graph_type[30];
   char curv_teo[100];
+  const char *prog_eps;
   int err = 1;
   
   for(i=0;i<NT;i++){
@@ -251,7 +278,13 @@ void xmgr(char prog[], char format[])
       	}	
       	else if(!strcmp(xmgr_par_file,"NULL") && !strcmp(GRAPH_TYPE,"PDF")){
 	//	printf(":::::::::: 2 :::::::::::::\n\n");
-			if(display_flag) sprintf(xmgr_cmd,"%s %s -nxy %s -settype xydy %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",grace_prog("EPS", xmgr_par_file),graph_type,curv_teo,gnu,curv_teo,curv_teo,curv_teo,curv_teo);
+			/* plot-go writes the PDF itself; the EPS stays (the GUI reads its crop) */
+			if(plotgo_pdf(xmgr_par_file)) {
+				prog_eps = grace_prog("EPS", xmgr_par_file);
+				if(display_flag) sprintf(xmgr_cmd,"%s %s -nxy %s -settype xydy %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && %s %s -nxy %s -settype xydy %s -hdevice PDF -hardcopy -printfile %s.pdf && display %s.pdf",prog_eps,graph_type,curv_teo,gnu,curv_teo,curv_teo,prog_eps,graph_type,curv_teo,gnu,curv_teo,curv_teo);
+				else sprintf(xmgr_cmd,"%s %s -nxy %s -settype xydy %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && %s %s -nxy %s -settype xydy %s -hdevice PDF -hardcopy -printfile %s.pdf",prog_eps,graph_type,curv_teo,gnu,curv_teo,curv_teo,prog_eps,graph_type,curv_teo,gnu,curv_teo);
+			}
+			else if(display_flag) sprintf(xmgr_cmd,"%s %s -nxy %s -settype xydy %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",grace_prog("EPS", xmgr_par_file),graph_type,curv_teo,gnu,curv_teo,curv_teo,curv_teo,curv_teo);
 			else sprintf(xmgr_cmd,"%s %s -nxy %s -settype xydy %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps",grace_prog("EPS", xmgr_par_file),graph_type,curv_teo,gnu,curv_teo,curv_teo,curv_teo);
       	}
       	else if(strcmp(xmgr_par_file,"NULL") && strcmp(GRAPH_TYPE,"PDF")){
@@ -263,7 +296,12 @@ void xmgr(char prog[], char format[])
 	//	printf(":::::::::: 4 ::::::::::::: %s %s\n\n",xmgr_par_file,GRAPH_TYPE);
 	//	not sed -i: in a per-block folder %s is a link to the fit folder's file, and macOS sed
 	//	edits only regular files in place (GNU sed replaces the link)
-			if(display_flag) sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s  -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",curv_teo,curv_teo,curv_teo,curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo,curv_teo);
+			if(plotgo_pdf(xmgr_par_file)) {
+				prog_eps = grace_prog("EPS", xmgr_par_file);
+				if(display_flag) sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && %s -settype xydy %s -nxy %s -param %s -hdevice PDF -hardcopy -printfile %s.pdf && display %s.pdf",curv_teo,curv_teo,curv_teo,curv_teo,prog_eps,gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,prog_eps,gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo);
+				else sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && %s -settype xydy %s -nxy %s -param %s -hdevice PDF -hardcopy -printfile %s.pdf",curv_teo,curv_teo,curv_teo,curv_teo,prog_eps,gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,prog_eps,gnu,curv_teo,xmgr_par_file,curv_teo);
+			}
+			else if(display_flag) sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s  -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps && display %s.pdf",curv_teo,curv_teo,curv_teo,curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo,curv_teo);
 			else sprintf(xmgr_cmd,"sed -E '/inf\\|nan/d' %s > %s.tmp && mv -f %s.tmp %s && %s -settype xydy %s -nxy %s -param %s -hdevice EPS -hardcopy -printfile %s.eps -saveall %s.agr && epstopdf %s.eps",curv_teo,curv_teo,curv_teo,curv_teo,grace_prog("EPS", xmgr_par_file),gnu,curv_teo,xmgr_par_file,curv_teo,curv_teo,curv_teo);
       	}
       	else {
