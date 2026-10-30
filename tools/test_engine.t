@@ -251,6 +251,24 @@ MK
     like($out, qr/extension pkg: keeping \w{7} \(newer than or diverged/, '...never moves a checkout backwards');
     is(gitq("$c2/extensions/pkg", 'rev-parse', 'HEAD'), $c2new, '...indeed');
 
+    my $pkgnew = "$w/pkg-republished";
+    sh('git', 'clone', '-q', $pkg, $pkgnew);
+    git($pkgnew, 'checkout', '-q', '--orphan', 'clean');
+    git($pkgnew, 'commit', '-qm', 'republished, history starts here');
+    git($pkgnew, 'branch', '-q', '-M', 'main');
+    my (undef, $c3) = $pkgsrc->('pkg', $pkgnew);
+    spew("$c2/extensions/pkg/NOTE", "local edit\n");
+    ($rc, $out) = run('install', @pkgrun);
+    isnt($rc, 0, 'a replaced history, with local changes');
+    like($out, qr/extension pkg: the repository's history was replaced, but .* has local changes/, '...stops and says why');
+    is(gitq("$c2/extensions/pkg", 'rev-parse', 'HEAD'), $c2new, '...leaving the checkout alone');
+    git("$c2/extensions/pkg", 'checkout', '-q', '--', 'NOTE');
+    ($rc, $out) = run('install', @pkgrun, '--if-changed');
+    is($rc, 0, 'a replaced history (no commit in common)') or diag $out;
+    like($out, qr/extension pkg: history replaced - \w{7} -> \w{7} \(bundled\)/, '...moves to it');
+    is(gitq("$c2/extensions/pkg", 'rev-parse', 'HEAD'), $c3, '...to the bundled commit');
+    like($out, qr/link test passed/, '...and rebuilds');
+
     ($rc, $out) = run('install', '--c-root', $c2, '--root', $root2, '--keep-minuit', '--no-default-extensions', '--extension', "good=$good\@main");
     is($rc, 0, 'install an extension that is not in the package') or diag $out;
     ($rc, $out) = run('install', @pkgrun, '--if-changed');

@@ -248,7 +248,11 @@ sub sources_doc {
 
 # Brings a checkout to a bundle's commit: clones it when missing (origin
 # set to the real repository), otherwise moves it forward only - a
-# checkout that is already newer, or has diverged, is kept as it is.
+# checkout that is already newer, or has diverged, is kept as it is. A
+# checkout with no commit in common with the bundle's is on a history that
+# was replaced (Florence was republished from 0.3.3 on without its earlier
+# versions, 2026-10): it moves to the bundle's commit, unless it has local
+# changes to tracked files.
 sub update_from_bundle {
     my ($dir, $bundle, $repo, $commit, $what) = @_;
     if (!-d "$dir/.git") {
@@ -266,9 +270,25 @@ sub update_from_bundle {
     } elsif (git_ok($dir, 'merge-base', '--is-ancestor', $head, $commit)) {
         git_ok($dir, 'checkout', '-q', '--force', $commit) or die "cannot check out $commit in $dir\n";
         say_("$what: " . substr($head, 0, 7) . ' -> ' . substr($commit, 0, 7) . ' (bundled)');
+    } elsif (unrelated_history($dir, $commit)) {
+        my $dirty = git_out($dir, 'status', '--porcelain', '--untracked-files=no') // '';
+        die "$what: the repository's history was replaced, but $dir has local changes - commit them elsewhere or discard them, then run again\n"
+            if $dirty ne '';
+        git_ok($dir, 'checkout', '-q', '--force', $commit) or die "cannot check out $commit in $dir\n";
+        git_ok($dir, 'remote', 'set-url', 'origin', $repo) if $repo;
+        say_("$what: history replaced - " . substr($head, 0, 7) . ' -> ' . substr($commit, 0, 7) . ' (bundled)');
     } else {
         say_("$what: keeping " . substr($head, 0, 7) . ' (newer than or diverged from the bundled ' . substr($commit, 0, 7) . ')');
     }
+}
+
+# HEAD and commit share no commit at all (git merge-base exits 1); local
+# work on the same history never produces that.
+sub unrelated_history {
+    my ($dir, $commit) = @_;
+    return 0 unless git_ok($dir, 'rev-parse', '--verify', '-q', "$commit^{commit}");
+    system('git', '-C', $dir, '-c', 'safe.directory=*', 'merge-base', 'HEAD', $commit);
+    return $? >> 8 == 1;
 }
 
 sub ext_record {
