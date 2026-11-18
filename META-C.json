@@ -201,5 +201,45 @@
 	"description": "R1 model based on eq. 31 of Roch et al.paper J. Chem. Phys. 1999, 110 (11), 5403−5411; * index: 0: total; 1: 1st term; 2: 2nd term; 3: 3th term * f: frequency; Unit: Hz  * T: temperature; Unit: Hz  * C: concentration of magnetic particvles; Unit: mmol/L * mu: Magnetic moment os paramagnetic particles; Unit: A m^2 * r: mean sqaure diffusion distance; (td=r^2/D); Unit: meter * P: relative paramagnertic contributions; Unit; none * D: self-diffusion coefficient; Unit: m^2/s * tN: Neel relaxation; Unit: second ",
 	"devision": "Paramagnetic",
 	"function": "R1spmHeur(index, f, T, C, mu, r, P, D, tN, w0)"
+    },
+    "R2_CR": {
+        "devision": "Chemical exchange",
+        "source": "C/local/CarverRichards.c",
+        "references": [
+            "J. P. Carver and R. E. Richards, J. Magn. Reson. 6 (1972) 89-105, Appendix A1-A10, DOI:10.1016/0022-2364(72)90090-X",
+            "B. P. Hills, S. F. Takacs and P. S. Belton, Mol. Phys. 67 (1989) 903-918, p.911 equations (1)-(3), DOI:10.1080/00268978900101531"
+        ],
+        "constraints": "tcp,T2A,T2B,tauA,tauB > 0; 0 < pB < 1 and kB > 0 for R2_CR_pb. Nonphysical inputs return NaN. tcp is the 180-to-180 separation (twice the 90-to-180 delay).",
+        "scope": "Dominant eigenmode effective relaxation; not full finite echo-train amplitudes. A3-A5 use Hills corrections. Lifetimes and populations are linked by equilibrium detailed balance.",
+        "function": "R2_CR(tcp,T2A,T2B,tauA,tauB,omegaA,omegaB)",
+        "parameters": "tcp,T2A,T2B,tauA,tauB,omegaA,omegaB",
+        "description": "Corrected Carver-Richards two-site CPMG model, returning R2=1/T2 in s^-1. All times are in seconds; omegaA and omegaB are angular frequencies in rad/s. tauA and tauB are A->B and B->A residence times. Positive infinite residence times mean no exchange. Uses only omegaB-omegaA."
+    },
+    "T2_CR": {
+        "devision": "Chemical exchange",
+        "source": "C/local/CarverRichards.c",
+        "references": [
+            "J. P. Carver and R. E. Richards, J. Magn. Reson. 6 (1972) 89-105, Appendix A1-A10, DOI:10.1016/0022-2364(72)90090-X",
+            "B. P. Hills, S. F. Takacs and P. S. Belton, Mol. Phys. 67 (1989) 903-918, p.911 equations (1)-(3), DOI:10.1080/00268978900101531"
+        ],
+        "constraints": "tcp,T2A,T2B,tauA,tauB > 0; 0 < pB < 1 and kB > 0 for R2_CR_pb. Nonphysical inputs return NaN. tcp is the 180-to-180 separation (twice the 90-to-180 delay).",
+        "scope": "Dominant eigenmode effective relaxation; not full finite echo-train amplitudes. A3-A5 use Hills corrections. Lifetimes and populations are linked by equilibrium detailed balance.",
+        "function": "T2_CR(tcp,T2A,T2B,tauA,tauB,omegaA,omegaB)",
+        "parameters": "tcp,T2A,T2B,tauA,tauB,omegaA,omegaB",
+        "description": "Corrected Carver-Richards two-site CPMG model, returning T2 in s. All times are in seconds; omegaA and omegaB are angular frequencies in rad/s. tauA and tauB are A->B and B->A residence times. Positive infinite residence times mean no exchange. Uses only omegaB-omegaA."
+    },
+    "R2_CR_pb": {
+        "devision": "Chemical exchange",
+        "source": "C/local/CarverRichards.c",
+        "references": [
+            "J. P. Carver and R. E. Richards, J. Magn. Reson. 6 (1972) 89-105, Appendix A1-A10, DOI:10.1016/0022-2364(72)90090-X",
+            "B. P. Hills, S. F. Takacs and P. S. Belton, Mol. Phys. 67 (1989) 903-918, p.911 equations (1)-(3), DOI:10.1080/00268978900101531"
+        ],
+        "constraints": "tcp,T2A,T2B,tauA,tauB > 0; 0 < pB < 1 and kB > 0 for R2_CR_pb. Nonphysical inputs return NaN. tcp is the 180-to-180 separation (twice the 90-to-180 delay).",
+        "scope": "Dominant eigenmode effective relaxation; not full finite echo-train amplitudes. A3-A5 use Hills corrections. Lifetimes and populations are linked by equilibrium detailed balance.",
+        "function": "R2_CR_pb(tcp,T2A,T2B,pB,kB,dw)",
+        "parameters": "tcp,T2A,T2B,pB,kB,dw",
+        "call": "R2(tcp[1e-6<1],T2A=2,T2B=0.0038,pB:0.01[1e-6<0.1],kB:10000[1<1e7],dw=2000)=R2_CR_pb(tcp,T2A,T2B,pB,kB,dw)",
+        "description": "Corrected Carver-Richards CPMG R2=1/T2 in s^-1, A=free and B=bound. tcp,T2A,T2B in s; pB is bound population (dimensionless); kB=1/tauB in s^-1; dw=omegaB-omegaA in rad/s. kA=pB*kB/(1-pB). The example fixes intrinsic T2 values and dw and fits only pB,kB; replace fixed values with independent measurements."
     }
 }

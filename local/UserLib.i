@@ -1,6 +1,9 @@
 %module UserLib
 
 %inline %{
+  extern double R2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+  extern double T2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+  extern double R2_CR_pb(double tcp, double T2A, double T2B, double pB, double kB, double dw);
   extern double BPP(double f,double a,double tauc);
   extern double ODFN(double f, double Aodf, double fcm, double fcM, double delta);
   extern double OPF(double f, double Aopf, double f0,double fcm, double fcM,double n);
@@ -112,3 +115,7 @@ extern double R1spmHeur(double index, double f, double T, double C, double mu, d
 extern double Florence4( double index, double FREQ, double SI, double GAMMAI, double SPIN, double IREL, double DELTA2, double TAURM, double TAUVM, double TAUMM, double TAUDELTA, double DPARAM, double EPARAM, double S4M, double GXM, double GYM, double GZM, double AXM, double AYM, double AZM, double DM, double DDM, double CONCM, double ACQ, double AMOLFRAM, double RKM, double ACONTM, double THETAM, double PHIM);
 extern double FlorenceN( double index, double n, double FREQ, double SI, double GAMMAI, double SPIN, double IREL, double DELTA2, double TAURM, double TAUVM, double TAUMM, double TAUDELTA, double DPARAM, double EPARAM, double S4M, double GXM, double GYM, double GZM, double AXM, double AYM, double AZM, double DM, double DDM, double CONCM, double ACQ, double AMOLFRAM, double RKM, double ACONTM, double THETAM, double PHIM);
 
+
+extern double R2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+extern double T2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+extern double R2_CR_pb(double tcp, double T2A, double T2B, double pB, double kB, double dw);

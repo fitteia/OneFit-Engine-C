@@ -1,6 +1,6 @@
 # onefite-c-code core API: what the installed headers declare.
 # Written by `make api-accept`, checked by `make api-check` (tools/api.pl).
-# LIBNUMBER 6.0.0
+# LIBNUMBER 6.1.0
 core/onefit-3.1/fitutil.h: FILE*openf(char fname[],char mode[]);
 core/onefit-3.1/fitutil.h: char**buffer_lines(FILE*file,int nlines,int*nchar_line);
 core/onefit-3.1/fitutil.h: char**getsstring(char*str,int*n);
@@ -387,6 +387,10 @@ local/Bcirc.h: double _Bcirc_z(Function*X);
 local/CROSSRELAX.h: double CROSSR1(double f,double a,double tau,double f0);
 local/CROSSRELAX.h: double CROSSRELAX(double f,double a,double tau,double f0);
 local/CROSSRELAX.h: double R1CRsp1(double f,double Cnh,double tq,double fq1,double fq2,double Theta,double Phi);
+local/CarverRichards.h: #define OFE_CARVER_RICHARDS_H
+local/CarverRichards.h: double R2_CR(double tcp,double T2A,double T2B,double tauA,double tauB,double omegaA,double omegaB);
+local/CarverRichards.h: double R2_CR_pb(double tcp,double T2A,double T2B,double pB,double kB,double dw);
+local/CarverRichards.h: double T2_CR(double tcp,double T2A,double T2B,double tauA,double tauB,double omegaA,double omegaB);
 local/CompElliptic1.h: double CompElliptic1(double K,double NP);
 local/CompElliptic1.h: double _elliptic1_(Function*X);
 local/ECD_poli.h: #define FILE_D2J1TAB "/home/lfx/lib/d2J1tab.dat"
@@ -587,6 +591,8 @@ local/userlib.h: double R1OSabh(double f,double C,double S,double a,double D,dou
 local/userlib.h: double R1OSabhf(double f,double C,double S,double a,double D,double tv,double Delta2);
 local/userlib.h: double R1Torrey(double f,double n,double d,double r,double tau);
 local/userlib.h: double R1spmHeur(double index,double f,double T,double C,double mu,double r,double P,double D,double tN,double w0);
+local/userlib.h: double R2_CR(double tcp,double T2A,double T2B,double tauA,double tauB,double omegaA,double omegaB);
+local/userlib.h: double R2_CR_pb(double tcp,double T2A,double T2B,double pB,double kB,double dw);
 local/userlib.h: double RMTDnum(double f,double p,double Armtd,double fcm,double fcM);
 local/userlib.h: double RNordio(double f,double S0,double A0,double A1,double A2,double Dz,double Dx);
 local/userlib.h: double RNordio_ang(double f,double S0,double A0,double A1,double A2,double Dz,double Dx,double delta);
@@ -601,6 +607,7 @@ local/userlib.h: double SDFreedHF(double f1,double f2,double tau,double n,double
 local/userlib.h: double SDN11_2_DllDp2(double f,double d,double n,double tauD,double delta);
 local/userlib.h: double SDN11_2_DllDp2_poli(double f,double d,double n,double tauD);
 local/userlib.h: double SDvilfSmB(double f,double d,double n,double t);
+local/userlib.h: double T2_CR(double tcp,double T2A,double T2B,double tauA,double tauB,double omegaA,double omegaB);
 local/userlib.h: double Torrey(double f,double d,double n,double tauD);
 local/userlib.h: double Torrey1(double f,double d,double r,double n,double tauD);
 local/userlib.h: double _Bcirc_x(Function*X);

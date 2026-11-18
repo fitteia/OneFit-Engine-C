@@ -261,3 +261,8 @@ void modflor_(double PINP[28], double *FREQ, double R1[10]);
 /*** R1spm-heuristic.h ***/
 double R1spmHeur(double index, double f, double T, double C, double mu, double r, double P, double D, double tN, double w0);
 
+
+/* Corrected Carver-Richards two-site CPMG relaxation. */
+double R2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+double T2_CR(double tcp, double T2A, double T2B, double tauA, double tauB, double omegaA, double omegaB);
+double R2_CR_pb(double tcp, double T2A, double T2B, double pB, double kB, double dw);

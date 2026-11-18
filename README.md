@@ -30,6 +30,26 @@ predates the split and traces the real history of these files, not a fresh impor
 - **`makefile`** - top-level orchestration: builds and installs everything above, in the
   correct order.
 
+## Corrected Carver-Richards CPMG models
+
+`local/CarverRichards.c` provides `R2_CR`, `T2_CR` and `R2_CR_pb` for both
+OFE-Raku and OFE-Go. They implement Carver-Richards Appendix A1-A10 with
+A3-A5 corrected by Hills, Takacs and Belton (1989), p.911 equations (1)-(3).
+The lifetime form takes seconds and angular frequencies in rad/s; the
+bound-fraction form enforces equilibrium detailed balance. `tcp` is the
+180-to-180 pulse separation. These return a dominant-mode effective rate
+(or T2), not finite echo-train amplitudes. `META-C.json` documents the full
+signatures, constraints and references. No auxiliary code is needed.
+
+`make model-selftest` compiles the model and an independent complex 2x2
+Bloch-McConnell propagator reference, checks 200 parameter sets and limiting
+cases, and verifies catalog registration. It is included in `make test`.
+New exported declarations advance the core API to 6.1.0; existing consumers
+read the installed `etc/engine.mk` to select the matching library names.
+Rebuild/install the C library and refresh the merged extension catalog to
+make the model available in an existing installation. OFE-Go packages must
+also advance their pinned C release before bundling the new functions.
+
 ## Building
 
 ```bash
